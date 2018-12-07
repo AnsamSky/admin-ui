@@ -1,117 +1,125 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title></title>
-    <script type="text/javascript" src="js/include.js"></script>
-    <script type="text/javascript">
-		function addTab(title, url){
-			if ($('#tt').tabs('exists', title)){
-				$('#tt').tabs('close',title);
-			} 
-			var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:100%;"></iframe>';
-			$('#tt').tabs('add',{
-				title:title,
-				content:content,
-				closable:true
-			});
-			
-		}
-
-		$(function(){
-			var json=[{"text": "菜单","children":[]}];
-            var j=0
-			if(getResources("/system")){
-			    var system={"text": "系统管理","children":[]};
-			    var i=0
-                if(getResources("/system/user")){
-                    system.children[i]={"text": "用户管理","attributes": {"url": "/system/user/list.html"}};
-                    i+=1;
-                }
-                if(getResources("/system/role")){
-                     system.children[i]={"text": "角色管理","attributes": {"url": "/system/role/list.html"}};
-                     i+=1;
-                }
-                if(getResources("/system/resources")){
-                    system.children[i]={"text": "权限管理","attributes": {"url": "/system/resources/list.html"}};
-                    i+=1;
-                }
-                if(getResources("/system/dict")){
-                    system.children[i]={"text": "字典管理","attributes": {"url": "/system/dict/list.html"}};
-                    i+=1;
-                }
-                json[0].children[j]=system;
-                j+=1
-			}
-            $('#tree').tree({
-				data: json,
-			 	onClick: function(node){
-			       if($('#tree').tree('isLeaf',node.target)){//判断是否是叶子节点
-			    	   addTab(node.text,htmlURL+node.attributes.url)
-			       }
-			    }
-			});
-		});
-		function logout(){
-			  $.messager.confirm("确认", "确认注销吗？", function (r) {
-			        if (r) {
-						$.ajax({   
-							url:url+"/logoutJSON",   
-							success:function(data){   	
-							}
-						});
-						window.location=htmlURL+"/login.html";
-			        }
-			    });
-		}
-		function edit(){
-			 addTab("更改密码", htmlURL+"/system/user/updatePassword.html");
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    </script>
+    <meta charset="UTF-8">
 </head>
+<body>
+<div id="app" >
+    <el-button-group>
+        <el-button type="primary" @click="submitForm1">注销</el-button>
+        <el-button type="primary" @click="submitForm2">更改密码</el-button>
+    </el-button-group>
+    <el-container >
+        <el-header >
+            <h1>jquery-element-admin</h1>
 
+        </el-header>
+        <el-container >
+            <el-aside >
 
-<body class="easyui-layout">
-<div data-options="region:'north'" style="height:70px;">
-    <div style="margin-top: 20px;padding-left: 50px;">
-        <span style="font-size: 20px;"></span>
-    </div>
-</div>
+                <el-menu
+                        @select="handleSelect">
+                    <el-submenu index="1">
+                        <template slot="title">
+                            <span>菜单</span>
+                        </template>
+                        <el-submenu index="1-1">
+                            <template slot="title">
+                                <span>系统管理</span>
+                            </template>
+                            <el-menu-item index="1-1-1">用户管理</el-menu-item>
+                            <el-menu-item index="1-1-2">角色管理</el-menu-item>
+                            <el-menu-item index="1-1-3" >权限管理</el-menu-item>
+                            <el-menu-item index="1-1-4" >字典管理</el-menu-item>
 
+                        </el-submenu>
+                    </el-submenu>
 
-<div data-options="region:'west',title:'菜单'" style="width:200px;">
-    <div id="tree"></div>
+                </el-menu>
 
-</div>
-<div id="tt" class="easyui-tabs" data-options="region:'center',border:false,tools:'#tab-tools'">
-    <div title="首页" style="padding:10px">
-        <p style="font-size:14px"></p>
-
-    </div>
-
-</div>
-<div id="tab-tools">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-edit'"
-       onclick="edit()">更改密码</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'"
-       onclick="logout()">退出</a>
+            </el-aside>
+            <el-main >
+                <el-tabs v-model="editableTabsValue"  type="card" closable @tab-remove="removeTab">
+                    <el-tab-pane
+                            :key="item.name"
+                            v-for="(item, index) in editableTabs"
+                            :label="item.title"
+                            :name="item.name"
+                    >
+                        <iframe scrolling="auto" frameborder="0"  :src="item.content" style="width:100%;height:100%;"></iframe>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-main>
+        </el-container>
+    </el-container>
 </div>
 </body>
+<script type="text/javascript" src="js/include.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data:{
+            editableTabsValue: '0',
+            editableTabs: [],
+            tabIndex: 0
+
+        },
+        methods: {
+            handleSelect(key){
+                var url=htmlURL;
+                if(key=='1-1-1'){
+                    url+="/system/user/list.html";
+                }else if(key=='1-1-2'){
+                    url+="/system/role/list.html";
+                }else if(key=='1-1-3'){
+                    url+="/system/resources/list.html";
+                }else if(key=='1-1-4'){
+                    url+="/system/dict/list.html";
+                }
+                var content = '';
+                this.addTab(null,url,key)
+            },addTab(targetName,url,key) {
+                let newTabName = ++this.tabIndex + '';
+                this.editableTabs.push({
+                    title: key,
+                    name: newTabName,
+                    content: url
+                });
+                this.editableTabsValue = newTabName;
+            },
+            removeTab(targetName) {
+                let tabs = this.editableTabs;
+                let activeName = this.editableTabsValue;
+                if (activeName === targetName) {
+                    tabs.forEach((tab, index) => {
+                        if (tab.name === targetName) {
+                            let nextTab = tabs[index + 1] || tabs[index - 1];
+                            if (nextTab) {
+                                activeName = nextTab.name;
+                            }
+                        }
+                    });
+                }
+                this.editableTabsValue = activeName;
+                this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+            },submitForm1(){
+                this.$confirm('是否注销?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    $.ajax({
+                        url:url+"/logoutJSON",
+                        success:function(data){
+                            window.location=htmlURL+"/login.html";
+                        }
+                    });
+
+                })
+            },submitForm2(){
+                this.addTab(null, htmlURL+"/system/user/updatePassword.html","更改密码");
+            }
+        }
+    })
+</script>
 </html>
