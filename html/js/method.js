@@ -1,5 +1,4 @@
 
-
 jQuery.prototype.serializeObject=function(){
 	var obj=new Object();  
 	$.each(this.serializeArray(),function(index,param){  
