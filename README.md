@@ -24,9 +24,9 @@
 ## 部署
 
 - 参考相对应后端工程
-- springboot为核心单机后端框架 https://gitee.com/vmaps/spring-app
-- dubbo为核心分布式后端框架 https://gitee.com/vmaps/dubbo-app
-- springcloud为核心分布式后端框架 https://gitee.com/vmaps/springcloud-app
+- springboot为核心单机后端框架 https://github.com/vmaps3/springboot-app
+- dubbo为核心分布式后端框架 https://github.com/vmaps3/dubbo-app
+- springcloud为核心分布式后端框架 https://github.com/vmaps3/springcloud-app
 
 ## qq交流群
 
